@@ -32,13 +32,19 @@ assert STORY.strip(), "story must not be only whitespace"
 
 
 def write_entry(output_dir="/output"):
-    """Write the story to <output_dir>/entry.txt with grader-safe modes."""
+    """Write the story to <output_dir>/entry.txt.
+
+    The file is written with a plain open(); the default umask already
+    yields a readable 0644 file. No chmod is attempted: the grader may
+    run this program as an unprivileged user that does not own the
+    output directory, and chmod would raise PermissionError there.
+    """
     os.makedirs(output_dir, exist_ok=True)
-    os.chmod(output_dir, 0o755)
     path = os.path.join(output_dir, "entry.txt")
+    # Plain open() only -- never chmod the directory or the file here,
+    # since the output directory may be owned by another user.
     with open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(STORY)
-    os.chmod(path, 0o644)
     return path
 
 
